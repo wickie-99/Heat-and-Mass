@@ -127,9 +127,7 @@ for v in x:
 print(y)
 
 plt.plot(x, y)
-
 plt.title('Current vs Velocity')
 plt.xlabel('Velocity')
 plt.ylabel('Current')
-
 plt.show()
