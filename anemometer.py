@@ -1,5 +1,6 @@
 import sympy as sp
 import numpy as np
+import matplotlib.pyplot as plt
 
 def property(T):
         Tf = (T+300)/2
@@ -39,7 +40,7 @@ Err = sp.Symbol("Err")
 eq_sensitivity = sp.Eq(I,2*v/m*dI/dv)
 eq_Re = sp.Eq(Re,rho*v*d/mu)
 eq_Q1 = sp.Eq(Q1, I**2*s*l/(sp.pi/4*d**2))
-eq_Q2 = sp.Eq(I**2, (k/d)*C*(Re**m)*(Pr**n)*((Pr/Prs)**(1/4))*(sp.pi*d*l)*(Ts-Too))
+eq_Q2 = sp.Eq(Q2, (k/d)*C*(Re**m)*(Pr**n)*((Pr/Prs)**(1/4))*(sp.pi*d*l)*(Ts-Too))
 
 l_num = 0.01
 s_num = 10.6 * 10**-8
@@ -72,8 +73,8 @@ for Temp in range(312,327):
     
 d_min = int(round(max(min_diameters)))
 print(d_min)
-temp_acc = 100
-dia_acc = 100
+temp_acc = 0.1
+dia_acc = 0.1
 
 values_1 = {v:v_max, I:I_max, l:l_num,s:s_num, Too:Too_num, sp.pi:np.pi}
 
@@ -81,14 +82,17 @@ Error = 10**10
 diameter = 0
 temperature = 0
 
-for temp in np.linspace(313,327,temp_acc):
+T_step = int((327-312)/temp_acc)
+d_step = int((50-d_min+1)/dia_acc)
+
+
+for temp in np.linspace(313,327,T_step):
     prop = property(temp)
     values_2 = {k:prop[2], mu:prop[1], rho: prop[0], Pr:prop[3], Prs:prop[4]}
-    for dia in np.linspace(d_min,50,dia_acc):
+    for dia in np.linspace(d_min,50,d_step):
         dia = dia * 10**-6
         Re_num = prop[0]*v_max*dia/prop[1]
         z = zuka(Re_num)
-
         values_3 = {C:z[0], m:z[1], n:z[2], Re:Re_num, Ts:temp, d:dia}
         Error_temp = abs((eq_Q1.rhs - eq_Q2.rhs).subs(values_1).subs(values_2).subs(values_3))
         if Error_temp< Error:
@@ -102,3 +106,30 @@ print("Temperature = ", end="")
 print(temperature)
 print("Error = ", end="")
 print(Error)
+
+equation = sp.Eq(eq_Q1.rhs,eq_Q2.rhs)
+
+prop = property(temperature)
+values_1 = {l:l_num,s:s_num, Too:Too_num, sp.pi:np.pi,k:prop[2],d:diameter, Ts:temperature, Pr:prop[3],Prs:prop[4]}
+eq_1 = equation.subs(values_1)
+
+x = [i for i in range(1,51)]
+y = []
+print(x)
+
+for v in x:
+    Re_num = prop[0]*v*diameter/prop[1]
+    z = zuka(Re_num)
+    values_2 = {Re:Re_num, C:z[0],m:z[1],n:z[2]}
+    i = sp.solve(eq_1.subs(values_2),I)
+    y.append(i[1])
+
+print(y)
+
+plt.plot(x, y)
+
+plt.title('Current vs Velocity')
+plt.xlabel('Velocity')
+plt.ylabel('Current')
+
+plt.show()
