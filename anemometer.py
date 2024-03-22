@@ -1,20 +1,6 @@
 import sympy as sp
 import numpy as np
 
-I, k,C,m,n,Pr,Prs,A,s,l,Ts, Too = sp.symbols("I, k,C,m,n,Pr,Pr_s,A,s,l,T_s, T_oo")
-Re, rho, d, mu, v = sp.symbols("Re, rho, d, mu, v")
-dI, dv = sp.symbols("dI, dv")
-Q1, Q2 = sp.symbols("Q_1, Q_2")
-
-eq_1 = sp.Eq(I,2*v/m*dI/dv)
-eq_2 = sp.Eq(Re,rho*v*d/mu)
-eq_3 = sp.Eq(I**2, (k/d)*C*(Re**m)*(Pr**n)*((Pr/Prs)**(1/4))*(((sp.pi*d*l)*(sp.pi*d**2/4))/(s*l))*(Ts-Too))
-
-values_1 = {v:50,I:0.2,dI:10*10**-6,dv:0.01}       
-m_min = sp.solve(eq_1.subs(values_1), m)
-print(m_min)
-Re_min = 40
-
 class fluid():
     def __init__(self, Ts):
         self.Ts = Ts
@@ -32,6 +18,7 @@ class fluid():
         self.conductivity = (26.3 + (self.Tf-300)/(350-300)*(30.0-26.3))*10**-3
         self.Pr = (0.707 + (self.Tf-300)/(350-300)*(0.70-0.707))
         self.Pr_s = 0.707
+        
 class Zukauskas():
     def __init__(self, Re):
         self.C = 1 
@@ -56,6 +43,22 @@ class Zukauskas():
             self.C = 0.076
             self.m = 0.7
             self.n = 0.33
+
+I, k,C,m,n,Pr,Prs,A,s,l,Ts, Too = sp.symbols("I, k,C,m,n,Pr,Pr_s,A,s,l,T_s, T_oo")
+Re, rho, d, mu, v = sp.symbols("Re, rho, d, mu, v")
+dI, dv = sp.symbols("dI, dv")
+Q1, Q2 = sp.symbols("Q_1, Q_2")
+
+eq_1 = sp.Eq(I,2*v/m*dI/dv)
+eq_2 = sp.Eq(Re,rho*v*d/mu)
+eq_3 = sp.Eq(I**2, (k/d)*C*(Re**m)*(Pr**n)*((Pr/Prs)**(1/4))*(((sp.pi*d*l)*(sp.pi*d**2/4))/(s*l))*(Ts-Too))
+
+values_1 = {v:50,I:0.2,dI:10*10**-6,dv:0.01}       
+m_min = sp.solve(eq_1.subs(values_1), m)
+print(m_min)
+Re_min = 40
+
+
 min_diameters = []
 
 for Temp in range(312,327):
